@@ -312,103 +312,11 @@ RUN if [ -z "$SYSTEMDISTRO_DEBUG_BUILD" ] ; then \
 
 FROM mcr.microsoft.com/cbl-mariner/base/core:2.0.20250701 AS runtime
 
-RUN echo "== Install Core/UI Runtime Dependencies ==" && \
+RUN echo "== Install container dependencies ==" && \
     tdnf    install -y \
-            cairo \
-            chrony \
-            dbus \
-            dbus-glib \
-            dhcp-client \
-            e2fsprogs \
-            freefont \
-            libinput \
-            libjpeg-turbo \
-            libltdl \
-            libpng \
-            librsvg2 \
-            libsndfile \
-            libwayland-client \
-            libwayland-server \
-            libwayland-cursor \
-            libwebp \
-            libXcursor \
-            libxkbcommon \
-            libXrandr \
-            iproute \
-            nftables \
-            pango \
-            procps-ng \
-            rpm \
-            sed \
-            tzdata \
-            wayland-protocols-devel \
-            xcursor-themes \
-            xorg-x11-server-Xwayland \
-            xorg-x11-server-utils \
-            xorg-x11-xtrans-devel
-
-# Install packages to aid in development, if not remove some packages. 
-ARG SYSTEMDISTRO_DEBUG_BUILD
-RUN if [ -z "$SYSTEMDISTRO_DEBUG_BUILD" ] ; then \
-        rpm -e --nodeps curl                     \
-        rpm -e --nodeps python3                  \
-        rpm -e --nodeps python3-libs;            \
-    else                                         \
-        echo "== Install development aid packages ==" && \
-        tdnf install -y                          \
-             gdb                                 \
-             mariner-repos-debug                 \
-             nano                                \
-             vim                              && \
-        tdnf install -y                          \
-             wayland-debuginfo                   \
-             xorg-x11-server-debuginfo;          \
-    fi
+            containerd2 \
+            containernetworking-plugins \
+            runc
 
 # Clear the tdnf cache to make the image smaller
 RUN tdnf clean all
-
-# Remove extra doc
-RUN rm -rf /usr/lib/python3.7 /usr/share/gtk-doc
-
-# Create wslg user.
-RUN useradd -u 1000 --create-home wslg && \
-    mkdir /home/wslg/.config && \
-    chown wslg /home/wslg/.config
-
-# Copy config files.
-COPY config/wsl.conf /etc/wsl.conf
-COPY config/weston.ini /home/wslg/.config/weston.ini
-COPY config/local.conf /etc/fonts/local.conf
-
-# Copy default icon file.
-COPY resources/linux.png /usr/share/icons/wsl/linux.png
-
-# Copy the built artifacts from the build stage.
-COPY --from=dev /work/build/usr/ /usr/
-COPY --from=dev /work/build/etc/ /etc/
-
-# Append WSLg setttings to pulseaudio.
-COPY config/default_wslg.pa /etc/pulse/default_wslg.pa
-RUN cat /etc/pulse/default_wslg.pa >> /etc/pulse/default.pa
-RUN rm /etc/pulse/default_wslg.pa
-
-# Copy the licensing information for PulseAudio
-COPY --from=dev /work/vendor/pulseaudio/GPL \
-                /work/vendor/pulseaudio/LGPL \
-                /work/vendor/pulseaudio/LICENSE \
-                /work/vendor/pulseaudio/NEWS \
-                /work/vendor/pulseaudio/README /usr/share/doc/pulseaudio/
-
-# Copy the licensing information for Weston
-COPY --from=dev /work/vendor/weston/COPYING /usr/share/doc/weston/COPYING
-
-# Copy the licensing information for FreeRDP
-COPY --from=dev /work/vendor/FreeRDP/LICENSE /usr/share/doc/FreeRDP/LICENSE
-
-# copy the documentation and licensing information for mesa
-COPY --from=dev /work/vendor/mesa/docs /usr/share/doc/mesa/
-
-COPY --from=dev /work/versions.txt /etc/versions.txt
-
-CMD /usr/bin/WSLGd
