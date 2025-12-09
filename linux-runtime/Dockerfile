@@ -90,6 +90,9 @@ RUN git clone --branch v2.2.0 --depth 1 https://github.com/containerd/nerdctl.gi
 WORKDIR /src/nerdctl
 RUN CGO_ENABLED=1 go build -o /out/nerdctl ./cmd/nerdctl
 
+RUN mkdir /out/licenses
+RUN cp LICENSE NOTICE /out/licenses
+
 
 # packages_prod stage
 # Downloads the packages needed for the prod rootfs and installs them into the
@@ -128,6 +131,7 @@ RUN --mount=type=bind,target=/context \
 FROM rootfs_${envtype} AS rootfs
 
 COPY --from=nerdctl /out/nerdctl /bin/nerdctl
+COPY --from=nerdctl /out/licenses /usr/share/licenses/nerdctl
 
 RUN /sbin/busybox --install -s
 
