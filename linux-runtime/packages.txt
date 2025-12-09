@@ -1,0 +1,7 @@
+ca-certificates
+containerd2
+containernetworking-plugins
+runc
+e2fsprogs
+busybox
+iptables
