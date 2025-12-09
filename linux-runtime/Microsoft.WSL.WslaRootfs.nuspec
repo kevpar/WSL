@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.WSL.WslaRootfs</id>
+    <version>0.1.0</version>
+    <authors>Microsoft</authors>
+    <projectUrl>https://github.com/microsoft/WSL</projectUrl>
+    <description>WSLA rootfs</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>WSL</tags>
+    <language>en-us</language>
+  </metadata>
+  <files>
+    <file src="C:\rootfs\debug\rootfs.vhd" target="rootfs.vhd"/>
+  </files>
+</package>

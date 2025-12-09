@@ -132,6 +132,7 @@ FROM rootfs_${envtype} AS rootfs
 
 COPY --from=nerdctl /out/nerdctl /bin/nerdctl
 COPY --from=nerdctl /out/licenses /usr/share/licenses/nerdctl
+COPY lsw-init.sh /etc/lsw-init.sh
 
 RUN /sbin/busybox --install -s
 
